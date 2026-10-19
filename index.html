@@ -1,0 +1,741 @@
+<title>N5 Web Parsons Problems</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: problem list on the left; question (context, design, code, command) then the two code lists on the right */
+:root {
+  --bg: #f6f4f6; --surface: #ffffff; --fg: #241a20; --muted: #6b5d65; --line: #ddd4d9;
+  --accent: #630935; --accent-fg: #ffffff; --accent-soft: #f3e4ec;
+  --silver: #d1d2d4;
+  --good: #1d7a46; --good-soft: #e2f3e8; --bad: #b3261e; --bad-soft: #fbe7e5;
+  --stretch: #8a5a00; --stretch-soft: #fbf0d9;
+  --code-bg: #fbf9fa;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", Verdana, sans-serif;
+  --font-code: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17121a; --surface: #211a21; --fg: #f1eaee; --muted: #b4a6ae; --line: #3b3039;
+  --accent: #e28ab2; --accent-fg: #2a0d1b; --accent-soft: #3a1f2e; --silver: #4a4b4f;
+  --good: #72d49c; --good-soft: #163221; --bad: #ff8d84; --bad-soft: #3b1b1a; --code-bg: #1c161c;
+  --stretch: #f0c063; --stretch-soft: #3a2e14;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #17121a; --surface: #211a21; --fg: #f1eaee; --muted: #b4a6ae; --line: #3b3039;
+  --accent: #e28ab2; --accent-fg: #2a0d1b; --accent-soft: #3a1f2e; --silver: #4a4b4f;
+  --good: #72d49c; --good-soft: #163221; --bad: #ff8d84; --bad-soft: #3b1b1a; --code-bg: #1c161c;
+  --stretch: #f0c063; --stretch-soft: #3a2e14;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+
+.topbar { background: var(--accent); color: var(--accent-fg);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.topbar-inner { max-width: 1240px; margin: 0 auto; padding-block: 14px; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; justify-content: space-between; }
+.topbar h1 { margin: 0; font-size: 1.35rem; text-wrap: balance; }
+.topbar h1 small { font-weight: 400; opacity: .85; font-size: .9rem; margin-left: 8px; }
+.progress { font-size: .95rem; font-variant-numeric: tabular-nums; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 24px; align-items: start; }
+
+nav.problems { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+.plist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.group-label { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; font-weight: 700; }
+.group-label:first-child { margin-top: 0; }
+.plist button { width: 100%; text-align: left; font: inherit; font-size: .95rem; color: var(--fg); background: transparent;
+  border: 1px solid transparent; border-radius: 6px; padding: 7px 10px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
+.plist button:hover { background: var(--surface); border-color: var(--line); }
+.plist button[aria-current="true"] { background: var(--surface); border-color: var(--accent); font-weight: 700; }
+.plist button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.plist .num { font-family: var(--font-code); font-size: .8rem; color: var(--muted); min-width: 1.6em; font-variant-numeric: tabular-nums; }
+.plist .tick { margin-left: auto; color: var(--good); font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.eyebrow .hints { color: var(--muted); text-transform: none; letter-spacing: 0; font-weight: 400; font-size: .85rem; }
+.block.hinted { border-left-color: var(--accent); }
+.block.hinted .mark { color: var(--accent); }
+
+main { min-width: 0; }
+.eyebrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 4px; }
+.eyebrow span { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+.eyebrow .kind { color: var(--accent); }
+.eyebrow .kind.stretch { color: var(--stretch); background: var(--stretch-soft); border: 1px solid var(--stretch); border-radius: 4px; padding: 0 8px; }
+.eyebrow .marks { color: var(--accent-fg); background: var(--accent); border-radius: 4px; padding: 1px 8px; letter-spacing: .04em; }
+h2 { margin: 0 0 10px; font-size: 1.6rem; line-height: 1.2; text-wrap: balance; }
+.question { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin-bottom: 16px; display: grid; gap: 14px; min-width: 0; }
+.question p { margin: 0; max-width: 72ch; }
+.question .command { font-weight: 700; }
+.question ul.req { margin: -6px 0 0; padding-left: 22px; display: grid; gap: 2px; max-width: 72ch; }
+.given { min-width: 0; }
+.given p { margin: 0 0 6px; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.given pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+  font-family: var(--font-code); font-size: .84rem; line-height: 1.5; overflow-x: auto; }
+.given pre mark { background: var(--accent-soft); color: var(--accent); font-weight: 500; border-radius: 3px; padding: 0 4px; }
+.how { font-size: .9rem; color: var(--muted); margin: 0 0 12px; max-width: 75ch; }
+
+.target { margin: 0; min-width: 0; }
+.target figcaption { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+.target figcaption span { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.wf { display: block; width: 100%; max-width: 560px; height: auto; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.wf .box { fill: var(--surface); stroke: currentColor; stroke-width: 1.5; }
+.wf .dash { stroke-dasharray: 6 4; }
+.wf .faded { opacity: .5; }
+.wf .lbl { font: 700 12px var(--font-code); fill: currentColor; }
+.wf .txt { font: 13px var(--font-body); fill: currentColor; }
+.wf .txt.hl { font-weight: 700; fill: var(--accent); }
+.wf .bold { font-weight: 700; }
+.wf .note { font: 12.5px var(--font-body); fill: var(--accent); }
+.wf .nline { stroke: var(--accent); stroke-width: 1.3; fill: none; }
+.wf .ahead { fill: var(--accent); }
+.wf .cross { stroke: var(--muted); stroke-width: 1; }
+.wf .ink { fill: currentColor; }
+.wf .fold { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+.wf .file { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; }
+.browser { max-width: 560px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #ffffff; }
+.browser .bar { background: #e8e5e8; padding: 7px 10px; display: flex; gap: 6px; align-items: center; font: 12px var(--font-body); color: #555555; }
+.browser .bar i { width: 10px; height: 10px; border-radius: 50%; background: #c9c3c8; display: inline-block; }
+.browser .bar b { font-weight: 400; margin-left: 8px; background: #ffffff; border-radius: 4px; padding: 2px 10px; }
+.browser .page { color: #000000; background: #ffffff; font: 16px "Times New Roman", Times, serif; line-height: 1.25; padding: 8px; overflow-x: auto; }
+.browser .page a { color: #0000ee; text-decoration: underline; }
+
+.boards { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.board { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; min-width: 0; display: flex; flex-direction: column; }
+.board h3 { margin: 0; padding: 10px 14px; font-size: .95rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; }
+.board h3 span { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+.board.answer { border-color: var(--accent); }
+.list { list-style: none; margin: 0; padding: 10px; min-height: 220px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.answer .list:empty::before { content: "Drag lines here, or tap a line to move it."; color: var(--muted); font-size: .9rem; padding: 18px 8px; text-align: center; border: 2px dashed var(--line); border-radius: 6px; }
+
+.block { font-family: var(--font-code); font-size: .84rem; line-height: 1.45; background: var(--code-bg); border: 1px solid var(--line);
+  border-left: 4px solid var(--silver); border-radius: 5px; padding: 7px 10px; cursor: grab; display: flex; gap: 8px; align-items: flex-start;
+  touch-action: none; user-select: none; -webkit-user-select: none; }
+.block code { font-family: inherit; white-space: pre-wrap; word-break: break-word; flex: 1; min-width: 0; }
+.block:hover { border-color: var(--accent); border-left-color: var(--accent); }
+.block:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.block .mark { font-family: var(--font-body); font-weight: 700; width: 1.2em; text-align: center; flex: none; }
+.block.right { background: var(--good-soft); border-left-color: var(--good); }
+.block.right .mark { color: var(--good); }
+.block.wrong { background: var(--bad-soft); border-left-color: var(--bad); }
+.block.wrong .mark { color: var(--bad); }
+.block.sortable-ghost { opacity: .35; }
+.block.sortable-chosen { cursor: grabbing; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 0; }
+.btn { font: inherit; font-weight: 700; font-size: .95rem; border-radius: 6px; padding: 9px 16px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--fg); }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.feedback { margin-top: 16px; border-radius: 8px; padding: 12px 14px; border: 1px solid var(--line); background: var(--surface); }
+.feedback.ok { border-color: var(--good); background: var(--good-soft); }
+.feedback.no { border-color: var(--bad); }
+.feedback p { margin: 0 0 6px; }
+.feedback p:last-child { margin-bottom: 0; }
+.feedback ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+.feedback code { font-family: var(--font-code); font-size: .82rem; background: var(--code-bg); padding: 1px 4px; border-radius: 3px; word-break: break-word; }
+
+.nav-results { width: 100%; margin-bottom: 14px; }
+.results h2 { margin-bottom: 4px; }
+.results .lead { margin: 0 0 18px; color: var(--muted); }
+.results h3 { font-size: 1.05rem; margin: 26px 0 10px; }
+.totals { display: flex; flex-wrap: wrap; gap: 12px; }
+.total-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; min-width: 150px; }
+.total-card b { display: block; font-size: 1.7rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.total-card span { font-size: .85rem; color: var(--muted); }
+.topic-rows { display: grid; gap: 10px; max-width: 640px; }
+.topic-row { display: grid; grid-template-columns: 160px minmax(0, 1fr) 90px; gap: 12px; align-items: center; font-size: .95rem; }
+.topic-row .track { height: 12px; background: var(--line); border-radius: 6px; overflow: hidden; }
+.topic-row .fill { height: 100%; background: var(--accent); border-radius: 6px; }
+.topic-row .num { text-align: right; font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.results table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+.results th, .results td { text-align: left; padding: 8px 9px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.results td.wrap { white-space: normal; min-width: 150px; }
+.results th { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.results tr:last-child td { border-bottom: 0; }
+.results td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 700; padding: 1px 8px; border-radius: 10px; }
+.pill.full { background: var(--good-soft); color: var(--good); }
+.pill.part { background: var(--accent-soft); color: var(--accent); }
+.pill.none { background: var(--bad-soft); color: var(--bad); }
+.pill.todo { background: var(--line); color: var(--muted); }
+.mistakes { display: grid; gap: 12px; max-width: 80ch; }
+.mistakes .m { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--bad); border-radius: 6px; padding: 10px 12px; }
+.mistakes .m p { margin: 0; }
+.mistakes .m .t { font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+.mistakes ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.mistakes code { font-family: var(--font-code); font-size: .82rem; background: var(--code-bg); padding: 1px 4px; border-radius: 3px; word-break: break-word; }
+.revise { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.revise button { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+.results .actions { margin-top: 26px; }
+.send { background: var(--surface); border: 1px solid var(--accent); border-radius: 8px; padding: 14px 16px; max-width: 760px; display: grid; gap: 12px; }
+.send p { margin: 0; }
+.send .fields { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.send label { display: grid; gap: 4px; font-size: .9rem; font-weight: 700; }
+.send input { font: inherit; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); min-width: 0; }
+.send input:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+.send textarea { font-family: var(--font-code); font-size: .8rem; width: 100%; min-height: 84px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--code-bg); color: var(--fg); resize: vertical; word-break: break-all; }
+
+@media (max-width: 900px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); }
+  nav.problems { position: static; }
+  .plist { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; padding-bottom: 4px; }
+  .group-label { display: none; }
+}
+@media (max-width: 700px) { .boards { grid-template-columns: minmax(0, 1fr); } .topic-row { grid-template-columns: 110px minmax(0, 1fr) 70px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <h1>N5 Web Parsons Problems <small>St Margaret's High School · Computing Science</small></h1>
+    <div class="progress" id="progress"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="problems" aria-label="Problems" id="problemNav"></nav>
+
+  <main>
+    <div id="workView">
+    <div class="eyebrow"><span class="kind" id="pKind"></span><span class="marks" id="pMarks"></span><span class="hints" id="pHints"></span></div>
+    <h2 id="pTitle"></h2>
+
+    <div class="question">
+      <p id="pContext"></p>
+      <figure class="target" id="pVisual"></figure>
+      <div class="given" id="pGiven" hidden>
+        <p id="pGivenLabel">Code</p>
+        <pre id="pGivenCode"></pre>
+      </div>
+      <p class="command" id="pCommand"></p>
+      <ul class="req" id="pBullets" hidden></ul>
+      <p id="pAfter" hidden></p>
+    </div>
+
+    <p class="how">Drag the lines you need into <strong>Your answer</strong>, in order. Some lines are not needed. You can also tap a line (or press Enter) to move it across, and use Alt + arrow keys to move it up or down.</p>
+
+    <div class="boards">
+      <section class="board">
+        <h3>Code lines <span id="poolCount"></span></h3>
+        <ul class="list" id="pool" aria-label="Code lines"></ul>
+      </section>
+      <section class="board answer">
+        <h3>Your answer <span id="ansCount"></span></h3>
+        <ul class="list" id="answer" aria-label="Your answer"></ul>
+      </section>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="checkBtn" type="button">Check answer</button>
+      <button class="btn" id="resetBtn" type="button">Start again</button>
+      <button class="btn" id="hintBtn" type="button">Hint (costs 1 mark)</button>
+      <button class="btn" id="nextBtn" type="button">Next problem</button>
+    </div>
+
+    <div class="feedback" id="feedback" aria-live="polite" hidden></div>
+    </div>
+    <section class="results" id="resultsView" hidden aria-live="polite"></section>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<script>
+/* ---------- Problems ----------
+   Built from one source shared with the class results page.
+   Each line is [text, key]. Lines that share a key can go in either order.
+   Lines with identical text are interchangeable wherever they appear.
+   Distractor order must not change without changing CONTENT_VERSION. */
+const CONTENT_VERSION = 1;
+const PROBLEMS = [{"group":"HTML Structure","kind":"Assignment style","marks":4,"title":"Page Structure","context":"Pittenweem Fish Bar wants a home page. The wireframe for the page is shown below.","vis":{"cap":"Wireframe","note":"","html":"\x3csvg class=\"wf\" viewBox=\"0 0 520 224\" role=\"img\" aria-label=\"Wireframe of the Pittenweem Fish Bar home page\">\x3cdefs>\x3cmarker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\">\x3cpath class=\"ahead\" d=\"M0,0 L10,5 L0,10 Z\"/>\x3c/marker>\x3c/defs>\x3crect class=\"box\" x=\"10\" y=\"10\" width=\"500\" height=\"150\"/>\x3crect class=\"box\" x=\"10\" y=\"10\" width=\"196\" height=\"28\"/>\x3ctext class=\"txt\" x=\"20\" y=\"29\">Pittenweem Fish Bar\x3c/text>\x3cline class=\"nline\" x1=\"212\" y1=\"24\" x2=\"238\" y2=\"24\"/>\x3ctext class=\"note\" x=\"244\" y=\"28\">title shown in the browser tab\x3c/text>\x3crect class=\"box dash\" x=\"30\" y=\"56\" width=\"460\" height=\"38\"/>\x3ctext class=\"lbl\" x=\"482\" y=\"72\" text-anchor=\"end\">h1\x3c/text>\x3ctext class=\"txt bold\" x=\"42\" y=\"81\">Pittenweem Fish Bar\x3c/text>\x3crect class=\"box dash\" x=\"30\" y=\"104\" width=\"460\" height=\"38\"/>\x3ctext class=\"lbl\" x=\"482\" y=\"120\" text-anchor=\"end\">p\x3c/text>\x3ctext class=\"txt\" x=\"42\" y=\"129\">Fresh fish landed in the harbour every morning.\x3c/text>\x3ctext class=\"note\" x=\"10\" y=\"190\">• All styles are stored in the external style sheet fishbar.css\x3c/text>\x3ctext class=\"note\" x=\"10\" y=\"210\">• fishbar.css is saved in the same folder as the page\x3c/text>\x3c/svg>"},"command":"Using the wireframe, write the HTML code for the page. The page must be linked to the external style sheet fishbar.css.","lines":[["\x3chtml>",1],["  \x3chead>",2],["    \x3ctitle>Pittenweem Fish Bar\x3c/title>",3],["    \x3clink rel=\"stylesheet\" type=\"text/css\" href=\"fishbar.css\">",3],["  \x3c/head>",4],["  \x3cbody>",5],["    \x3ch1>Pittenweem Fish Bar\x3c/h1>",6],["    \x3cp>Fresh fish landed in the harbour every morning.\x3c/p>",7],["  \x3c/body>",8],["\x3c/html>",9]],"distractors":[["    \x3clink rel=\"stylesheet\" type=\"text/css\" href=\"fishbar.html\">","The style sheet is a CSS file, so the link must point to fishbar.css."],["    \x3cstyle>fishbar.css\x3c/style>","A style element holds internal CSS rules. An external style sheet is joined to the page with a link element."],["    \x3ca href=\"fishbar.css\">Pittenweem Fish Bar\x3c/a>","An a element makes a hyperlink for the user to click. It does not apply a style sheet."]]},{"group":"HTML Structure","kind":"Assignment style","marks":4,"title":"Page Sections","context":"Lanark Pipe Band wants a page showing its results this season. The page is split into three sections. The wireframe is shown below.","vis":{"cap":"Wireframe","note":"","html":"\x3csvg class=\"wf\" viewBox=\"0 0 520 290\" role=\"img\" aria-label=\"Wireframe with three sections\">\x3cdefs>\x3cmarker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\">\x3cpath class=\"ahead\" d=\"M0,0 L10,5 L0,10 Z\"/>\x3c/marker>\x3c/defs>\x3crect class=\"box\" x=\"10\" y=\"10\" width=\"500\" height=\"50\"/>\x3ctext class=\"lbl\" x=\"502\" y=\"26\" text-anchor=\"end\">div id=\"topSection\"\x3c/text>\x3ctext class=\"txt bold\" x=\"24\" y=\"42\">Lanark Pipe Band\x3c/text>\x3ctext class=\"lbl faded\" x=\"24\" y=\"56\">h1\x3c/text>\x3crect class=\"box\" x=\"10\" y=\"68\" width=\"500\" height=\"150\"/>\x3ctext class=\"lbl\" x=\"502\" y=\"84\" text-anchor=\"end\">div id=\"resultsSection\"\x3c/text>\x3ctext class=\"txt bold\" x=\"24\" y=\"104\">Results this season\x3c/text>\x3ctext class=\"lbl faded\" x=\"190\" y=\"104\">h2\x3c/text>\x3ctext class=\"txt\" x=\"40\" y=\"136\">1.  Bridge of Allan: 2nd place\x3c/text>\x3ctext class=\"txt\" x=\"40\" y=\"162\">2.  Cowal: 1st place\x3c/text>\x3ctext class=\"txt\" x=\"40\" y=\"188\">3.  Perth: 3rd place\x3c/text>\x3cline class=\"nline\" x1=\"290\" y1=\"162\" x2=\"314\" y2=\"162\"/>\x3ctext class=\"note\" x=\"320\" y=\"166\">numbered list, in this order\x3c/text>\x3crect class=\"box\" x=\"10\" y=\"226\" width=\"500\" height=\"54\"/>\x3ctext class=\"lbl\" x=\"502\" y=\"242\" text-anchor=\"end\">div id=\"practiceSection\"\x3c/text>\x3ctext class=\"txt\" x=\"24\" y=\"266\">Practice is every Tuesday at 7pm.\x3c/text>\x3ctext class=\"lbl faded\" x=\"270\" y=\"266\">p\x3c/text>\x3c/svg>"},"command":"Implement the wireframe design using HTML. Write the code for the body of the page. Each section must be a div with the id shown.","lines":[["\x3cbody>",1],["  \x3cdiv id=\"topSection\">",2],["    \x3ch1>Lanark Pipe Band\x3c/h1>",3],["  \x3c/div>",4],["  \x3cdiv id=\"resultsSection\">",5],["    \x3ch2>Results this season\x3c/h2>",6],["    \x3col>",7],["      \x3cli>Bridge of Allan: 2nd place\x3c/li>",8],["      \x3cli>Cowal: 1st place\x3c/li>",9],["      \x3cli>Perth: 3rd place\x3c/li>",10],["    \x3c/ol>",11],["  \x3c/div>",12],["  \x3cdiv id=\"practiceSection\">",13],["    \x3cp>Practice is every Tuesday at 7pm.\x3c/p>",14],["  \x3c/div>",15],["\x3c/body>",16]],"distractors":[["    \x3cul>","The wireframe shows a numbered list. A numbered list is an ordered list, so it uses ol."],["  \x3cdiv id=\"#resultsSection\">","The # is only used in CSS to select an id. In HTML the id is written without it."],["      \x3cp>Cowal: 1st place\x3c/p>","Each item in a list must be inside an li element."]]},{"group":"Links and Media","kind":"Assignment style","marks":4,"title":"Hyperlinks","context":"The Arran Cheese Shop website has three pages: index.html, cheeses.html and visit.html. All three pages are saved in the same folder. The design of the home page is shown below.","vis":{"cap":"Finished page","note":"Links are underlined","html":"\x3cdiv class=\"browser\" inert>\x3cdiv class=\"bar\">\x3ci>\x3c/i>\x3ci>\x3c/i>\x3ci>\x3c/i>\x3cb>index.html\x3c/b>\x3c/div>\x3cdiv class=\"page\">\x3ch1 style=\"font-size:26px;margin:8px 0\">Arran Cheese Shop\x3c/h1>\x3cul style=\"margin:6px 0;padding-left:28px\">\x3cli>\x3ca>Our cheeses\x3c/a>\x3c/li>\x3cli>\x3ca>Visit the shop\x3c/a>\x3c/li>\x3c/ul>\x3cp style=\"margin:10px 0\">Plan your trip with \x3ca>VisitScotland\x3c/a>\x3c/p>\x3c/div>\x3c/div>"},"command":"Implement the design of the home page using HTML. The links must work as follows:","bullets":["Our cheeses links to cheeses.html","Visit the shop links to visit.html","VisitScotland links to https://www.visitscotland.com"],"lines":[["\x3ch1>Arran Cheese Shop\x3c/h1>",1],["\x3cul>",2],["  \x3cli>\x3ca href=\"cheeses.html\">Our cheeses\x3c/a>\x3c/li>",3],["  \x3cli>\x3ca href=\"visit.html\">Visit the shop\x3c/a>\x3c/li>",4],["\x3c/ul>",5],["\x3cp>Plan your trip with \x3ca href=\"https://www.visitscotland.com\">VisitScotland\x3c/a>\x3c/p>",6]],"distractors":[["  \x3ca href=\"cheeses.html\">\x3cli>Our cheeses\x3c/li>\x3c/a>","The link must go inside the li element, not around it."],["\x3cp>Plan your trip with \x3ca href=\"visitscotland.html\">VisitScotland\x3c/a>\x3c/p>","This is a relative address to a page in the shop's own folder. An external page needs its full address."],["  \x3cli>\x3ca href=\"C:/Users/arran/website/visit.html\">Visit the shop\x3c/a>\x3c/li>","This is the path to a file on one computer. It will not work once the website is published. Use a relative address."]]},{"group":"Links and Media","kind":"Question paper style","marks":2,"title":"Image from a Folder","context":"The Tobermory Chocolate Shop website is stored in the folders shown below. The home page, index.html, will show a photograph of the shop's truffles. The photograph must be 300 pixels wide and 200 pixels high.","vis":{"cap":"Website folders","note":"","html":"\x3csvg class=\"wf\" viewBox=\"0 0 520 180\" role=\"img\" aria-label=\"Folders for the website\">\x3cdefs>\x3cmarker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\">\x3cpath class=\"ahead\" d=\"M0,0 L10,5 L0,10 Z\"/>\x3c/marker>\x3c/defs>\x3cpath class=\"fold\" d=\"M18,18 h8 l3,3 h11 v13 h-22 Z\"/>\x3ctext class=\"txt\" x=\"48\" y=\"30\">website\x3c/text>\x3cpath class=\"file\" d=\"M47,42 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt\" x=\"74\" y=\"56\">index.html\x3c/text>\x3cpath class=\"file\" d=\"M47,68 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt\" x=\"74\" y=\"82\">contact.html\x3c/text>\x3cpath class=\"fold\" d=\"M44,96 h8 l3,3 h11 v13 h-22 Z\"/>\x3ctext class=\"txt\" x=\"74\" y=\"108\">images\x3c/text>\x3cpath class=\"file\" d=\"M73,120 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt\" x=\"100\" y=\"134\">logo.png\x3c/text>\x3cpath class=\"file\" d=\"M73,146 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt hl\" x=\"100\" y=\"160\">truffles.jpg\x3c/text>\x3ctext class=\"note\" x=\"280\" y=\"150\">truffles.jpg: 300 × 200 pixels\x3c/text>\x3c/svg>"},"command":"Write the line of HTML code that displays truffles.jpg on index.html. Arrange the parts to build the line. The attributes can go in any order. The alternative text is Box of chocolate truffles.","lines":[["\x3cimg",1],["src=\"images/truffles.jpg\"",2],["alt=\"Box of chocolate truffles\"",2],["width=\"300\"",2],["height=\"200\"",2],[">",3]],"distractors":[["src=\"../images/truffles.jpg\"","../ moves up out of the website folder. The images folder is in the same folder as index.html."],["src=\"website/images/truffles.jpg\"","The path starts from the folder where index.html is saved, so it does not include the website folder."],["href=\"images/truffles.jpg\"","An image names its file with src. href is used for links."]]},{"group":"Links and Media","kind":"Question paper style","marks":3,"title":"Video with Size","context":"The St Andrews Sailing Club website is stored in the folders shown below. A video of a dinghy launch will be added to the lessons.html page.","vis":{"cap":"Website folders","note":"","html":"\x3csvg class=\"wf\" viewBox=\"0 0 520 180\" role=\"img\" aria-label=\"Folders for the website\">\x3cdefs>\x3cmarker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\">\x3cpath class=\"ahead\" d=\"M0,0 L10,5 L0,10 Z\"/>\x3c/marker>\x3c/defs>\x3cpath class=\"fold\" d=\"M18,18 h8 l3,3 h11 v13 h-22 Z\"/>\x3ctext class=\"txt\" x=\"48\" y=\"30\">website\x3c/text>\x3cpath class=\"file\" d=\"M47,42 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt\" x=\"74\" y=\"56\">index.html\x3c/text>\x3cpath class=\"file\" d=\"M47,68 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt\" x=\"74\" y=\"82\">lessons.html\x3c/text>\x3cpath class=\"fold\" d=\"M44,96 h8 l3,3 h11 v13 h-22 Z\"/>\x3ctext class=\"txt\" x=\"74\" y=\"108\">media\x3c/text>\x3cpath class=\"file\" d=\"M73,120 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt\" x=\"100\" y=\"134\">club.png\x3c/text>\x3cpath class=\"file\" d=\"M73,146 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt hl\" x=\"100\" y=\"160\">launch.mp4\x3c/text>\x3crect class=\"box\" x=\"300\" y=\"44\" width=\"180\" height=\"101\"/>\x3cpath class=\"ink\" d=\"M380,82 l0,26 l22,-13 Z\"/>\x3ctext class=\"lbl\" x=\"306\" y=\"60\">launch.mp4\x3c/text>\x3cline class=\"nline\" x1=\"300\" y1=\"30\" x2=\"480\" y2=\"30\" marker-start=\"url(#ah)\" marker-end=\"url(#ah)\"/>\x3ctext class=\"note\" x=\"390\" y=\"24\" text-anchor=\"middle\">400 pixels wide\x3c/text>\x3cline class=\"nline\" x1=\"492\" y1=\"44\" x2=\"492\" y2=\"145\" marker-start=\"url(#ah)\" marker-end=\"url(#ah)\"/>\x3ctext class=\"note\" x=\"390\" y=\"166\" text-anchor=\"middle\">225 pixels high\x3c/text>\x3c/svg>"},"command":"Write the HTML code that displays launch.mp4 on lessons.html with the dimensions shown. The user must be able to play and pause the video.","lines":[["\x3cvideo width=\"400\" height=\"225\" controls>",1],["  \x3csource src=\"media/launch.mp4\" type=\"video/mp4\">",2],["\x3c/video>",3]],"distractors":[["\x3cvideo width=\"400\" height=\"225\">","Without controls the user cannot play or pause the video."],["  \x3csource src=\"launch.mp4\" type=\"video/mp4\">","The video is saved in the media folder, so the path must start with media/."],["\x3cimg src=\"media/launch.mp4\" width=\"400\" height=\"225\">","img only displays pictures. A video needs the video element."]]},{"group":"Links and Media","kind":"Question paper style","marks":3,"title":"Sound Clip","context":"Portree Ceilidh Band wants visitors to its website to hear a sample of its music. The website is stored in the folders shown below.","vis":{"cap":"Website folders","note":"","html":"\x3csvg class=\"wf\" viewBox=\"0 0 520 180\" role=\"img\" aria-label=\"Folders for the website\">\x3cdefs>\x3cmarker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\">\x3cpath class=\"ahead\" d=\"M0,0 L10,5 L0,10 Z\"/>\x3c/marker>\x3c/defs>\x3cpath class=\"fold\" d=\"M18,18 h8 l3,3 h11 v13 h-22 Z\"/>\x3ctext class=\"txt\" x=\"48\" y=\"30\">website\x3c/text>\x3cpath class=\"file\" d=\"M47,42 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt\" x=\"74\" y=\"56\">index.html\x3c/text>\x3cpath class=\"file\" d=\"M47,68 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt\" x=\"74\" y=\"82\">music.html\x3c/text>\x3cpath class=\"fold\" d=\"M44,96 h8 l3,3 h11 v13 h-22 Z\"/>\x3ctext class=\"txt\" x=\"74\" y=\"108\">audio\x3c/text>\x3cpath class=\"file\" d=\"M73,120 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt\" x=\"100\" y=\"134\">gayGordons.mp3\x3c/text>\x3cpath class=\"file\" d=\"M73,146 h11 l5,5 v13 h-16 Z\"/>\x3ctext class=\"txt hl\" x=\"100\" y=\"160\">stripTheWillow.mp3\x3c/text>\x3c/svg>"},"command":"Write the HTML code to add the sound file stripTheWillow.mp3 to the music.html page. The user must be able to play and pause the sound.","lines":[["\x3caudio controls>",1],["  \x3csource src=\"audio/stripTheWillow.mp3\" type=\"audio/mpeg\">",2],["\x3c/audio>",3]],"distractors":[["\x3cvideo controls>","A sound file is added with the audio element, not the video element."],["  \x3csource src=\"audio/stripTheWillow.mp3\" type=\"video/mp4\">","An MP3 file is a sound file. Its type is audio/mpeg."],["  \x3csource src=\"../audio/stripTheWillow.mp3\" type=\"audio/mpeg\">","../ moves up out of the website folder. The audio folder is in the same folder as music.html."]]},{"group":"CSS","kind":"Assignment style","marks":4,"title":"Internal Style Sheet","context":"Nairn Highland Games has a one-page website. The wireframe, annotated with the required styles, is shown below.","vis":{"cap":"Wireframe","note":"","html":"\x3csvg class=\"wf\" viewBox=\"0 0 520 236\" role=\"img\" aria-label=\"Wireframe annotated with styles\">\x3cdefs>\x3cmarker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\">\x3cpath class=\"ahead\" d=\"M0,0 L10,5 L0,10 Z\"/>\x3c/marker>\x3c/defs>\x3crect class=\"box\" x=\"10\" y=\"10\" width=\"500\" height=\"132\"/>\x3crect class=\"box dash\" x=\"30\" y=\"28\" width=\"460\" height=\"40\"/>\x3ctext class=\"lbl\" x=\"482\" y=\"44\" text-anchor=\"end\">h1\x3c/text>\x3ctext class=\"txt bold\" x=\"260\" y=\"54\" text-anchor=\"middle\">Nairn Highland Games\x3c/text>\x3crect class=\"box dash\" x=\"30\" y=\"80\" width=\"460\" height=\"44\"/>\x3ctext class=\"lbl\" x=\"482\" y=\"96\" text-anchor=\"end\">p\x3c/text>\x3ctext class=\"txt\" x=\"42\" y=\"108\">Caber toss, tug o' war and pipe bands on the links.\x3c/text>\x3ctext class=\"note\" x=\"10\" y=\"172\">• Page background: lightyellow\x3c/text>\x3ctext class=\"note\" x=\"10\" y=\"194\">• Heading: navy, centred\x3c/text>\x3ctext class=\"note\" x=\"10\" y=\"216\">• Paragraphs: Arial, 14px\x3c/text>\x3c/svg>"},"givenLabel":"HTML code for the body","given":"\x3cbody>\n  \x3ch1>Nairn Highland Games\x3c/h1>\n  \x3cp>Caber toss, tug o' war and pipe bands on the links.\x3c/p>\n\x3c/body>","command":"Implement the styles shown on the wireframe using internal CSS. Write the code for the head of the page. The title of the page is Nairn Highland Games. The rules can be written in any order.","lines":[["\x3chead>",1],["  \x3ctitle>Nairn Highland Games\x3c/title>",2],["  \x3cstyle>",3],["    body {background-color:lightyellow;}",4],["    h1 {color:navy; text-align:center;}",4],["    p {font-family:Arial; font-size:14px;}",4],["  \x3c/style>",5],["\x3c/head>",6]],"distractors":[["    h1 {color:navy; text-align:centre;}","CSS uses American spelling, so the value must be center."],["    p {font-family=Arial; font-size=14px;}","A property and its value are separated by a colon, not an equals sign."],["    h1 {font-color:navy; text-align:center;}","There is no font-color property. The colour of text is set with color."]]},{"group":"CSS","kind":"Assignment style","marks":4,"title":"External Style Sheet","context":"Peebles Cycle Hire has a website with three sections on each page. Every page is linked to the external style sheet cycles.css. The wireframe, annotated with the required styles, is shown below.","vis":{"cap":"Wireframe","note":"","html":"\x3csvg class=\"wf\" viewBox=\"0 0 520 340\" role=\"img\" aria-label=\"Wireframe with three sections, annotated with styles\">\x3cdefs>\x3cmarker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\">\x3cpath class=\"ahead\" d=\"M0,0 L10,5 L0,10 Z\"/>\x3c/marker>\x3c/defs>\x3crect class=\"box\" x=\"10\" y=\"10\" width=\"500\" height=\"234\"/>\x3crect class=\"box\" x=\"30\" y=\"24\" width=\"460\" height=\"64\"/>\x3ctext class=\"lbl\" x=\"482\" y=\"40\" text-anchor=\"end\">div\x3c/text>\x3ctext class=\"txt bold\" x=\"42\" y=\"46\">Bike hire\x3c/text>\x3ctext class=\"txt\" x=\"42\" y=\"72\">Mountain bikes from £25 a day.\x3c/text>\x3crect class=\"box\" x=\"30\" y=\"96\" width=\"460\" height=\"64\"/>\x3ctext class=\"lbl\" x=\"482\" y=\"112\" text-anchor=\"end\">div\x3c/text>\x3ctext class=\"txt bold\" x=\"42\" y=\"118\">Routes\x3c/text>\x3ctext class=\"txt\" x=\"42\" y=\"144\">Trails for every level at Glentress.\x3c/text>\x3crect class=\"box\" x=\"30\" y=\"168\" width=\"460\" height=\"64\"/>\x3ctext class=\"lbl\" x=\"482\" y=\"184\" text-anchor=\"end\">div\x3c/text>\x3ctext class=\"txt bold\" x=\"42\" y=\"190\">Opening times\x3c/text>\x3ctext class=\"txt\" x=\"42\" y=\"216\">Open 9am to 6pm, seven days a week.\x3c/text>\x3ctext class=\"note\" x=\"10\" y=\"270\">• Page background: lightgreen\x3c/text>\x3ctext class=\"note\" x=\"10\" y=\"290\">• Every section (div): white background\x3c/text>\x3ctext class=\"note\" x=\"10\" y=\"310\">• Headings (h2): Verdana, darkgreen\x3c/text>\x3ctext class=\"note\" x=\"10\" y=\"330\">• Paragraphs: Verdana, 16px\x3c/text>\x3c/svg>"},"givenLabel":"Part of the HTML code","given":"\x3chead>\n  \x3clink rel=\"stylesheet\" type=\"text/css\" href=\"cycles.css\">\n\x3c/head>\n\x3cbody>\n  \x3cdiv>\n    \x3ch2>Bike hire\x3c/h2>\n    \x3cp>Mountain bikes from £25 a day.\x3c/p>\n  \x3c/div>\n  …","command":"Write the rules for the external style sheet cycles.css to implement the styles shown on the wireframe. The rules can be written in any order.","lines":[["body {background-color:lightgreen;}",1],["div {background-color:white;}",1],["h2 {font-family:Verdana; color:darkgreen;}",1],["p {font-family:Verdana; font-size:16px;}",1]],"distractors":[["\x3cstyle>","An external style sheet only holds CSS rules. The style element is only used for internal CSS inside an HTML page."],["div {background-colour:white;}","CSS uses American spelling, so the property is background-color."],["body {background-color:white;}","The page background is light green. Only the sections are white."]]},{"group":"CSS","kind":"Question paper style","marks":3,"title":"Class Rule","context":"Dunfermline Gymnastics Club won the floor event at a national competition. The club wants the Floor heading to stand out on its results page. Part of the HTML and CSS code is shown below. The page should look like this when it is finished.","vis":{"cap":"Finished page","note":"","html":"\x3cdiv class=\"browser\" inert>\x3cdiv class=\"bar\">\x3ci>\x3c/i>\x3ci>\x3c/i>\x3ci>\x3c/i>\x3cb>results.html\x3c/b>\x3c/div>\x3cdiv class=\"page\">\x3ch1 style=\"font-family:Arial,sans-serif;font-size:24px;margin:8px 0\">Dunfermline Gymnastics Club\x3c/h1>\x3ch3 style=\"font-family:Arial,sans-serif;margin:8px 0\">Vault\x3c/h3>\x3ch3 style=\"font-family:Arial,sans-serif;margin:8px 0;color:goldenrod;text-align:center\">Floor\x3c/h3>\x3ch3 style=\"font-family:Arial,sans-serif;margin:8px 0\">Beam\x3c/h3>\x3c/div>\x3c/div>"},"givenLabel":"CSS rule and part of the HTML code","given":"h3 {font-family:Arial; color:black;}\n\n\x3ch3>Vault\x3c/h3>\n\x3ch3>Floor\x3c/h3>\n\x3ch3>Beam\x3c/h3>","command":"Write a CSS class rule called winner that makes the text goldenrod and centred. Then edit the HTML for the Floor heading so that the class is applied.","lines":[[".winner {color:goldenrod; text-align:center;}",1],["\x3ch3 class=\"winner\">Floor\x3c/h3>",2]],"distractors":[["#winner {color:goldenrod; text-align:center;}","# selects an id. A class is selected with a full stop."],["\x3ch3 class=\".winner\">Floor\x3c/h3>","The full stop is only used in the CSS. In HTML the class name is written without it."],["h3 {color:goldenrod; text-align:center;}","This rule would change every h3 heading, not just Floor."]]},{"group":"CSS","kind":"Question paper style","marks":3,"title":"ID Rule","context":"Largs Ice Cream Parlour wants its Monday offer to stand out on its home page. Part of the HTML code is shown below. The page should look like this when it is finished.","vis":{"cap":"Finished page","note":"","html":"\x3cdiv class=\"browser\" inert>\x3cdiv class=\"bar\">\x3ci>\x3c/i>\x3ci>\x3c/i>\x3ci>\x3c/i>\x3cb>index.html\x3c/b>\x3c/div>\x3cdiv class=\"page\">\x3ch1 style=\"font-size:24px;margin:8px 0\">Largs Ice Cream Parlour\x3c/h1>\x3cp style=\"margin:8px 0\">Twenty flavours made fresh every day.\x3c/p>\x3cp style=\"margin:8px 0;font-family:Georgia,serif;font-size:20px;color:crimson\">Two scoops for £3 every Monday.\x3c/p>\x3cp style=\"margin:8px 0\">Open 10am to 9pm.\x3c/p>\x3c/div>\x3c/div>"},"givenLabel":"Part of the HTML code","given":"\x3ch1>Largs Ice Cream Parlour\x3c/h1>\n\x3cp>Twenty flavours made fresh every day.\x3c/p>\n\x3cp>Two scoops for £3 every Monday.\x3c/p>\n\x3cp>Open 10am to 9pm.\x3c/p>","command":"Write a single CSS rule that uses an id called offer. The offer text should be Georgia, size 20px and crimson. Then edit the HTML for the offer so that the rule is applied.","lines":[["#offer {font-family:Georgia; font-size:20px; color:crimson;}",1],["\x3cp id=\"offer\">Two scoops for £3 every Monday.\x3c/p>",2]],"distractors":[[".offer {font-family:Georgia; font-size:20px; color:crimson;}","A full stop selects a class. An id is selected with #."],["\x3cp id=\"#offer\">Two scoops for £3 every Monday.\x3c/p>","The # is only used in the CSS. In HTML the id is written without it."],["p {font-family:Georgia; font-size:20px; color:crimson;}","This rule would change every paragraph on the page, not just the offer."]]},{"group":"CSS","kind":"Question paper style","marks":3,"title":"Match the Page","context":"Kirkcudbright Art Trail has a page about the stops on its trail. The HTML code for the page is shown below. The page should look like this when it is finished.","vis":{"cap":"Finished page","note":"","html":"\x3cdiv class=\"browser\" inert>\x3cdiv class=\"bar\">\x3ci>\x3c/i>\x3ci>\x3c/i>\x3ci>\x3c/i>\x3cb>trail.html\x3c/b>\x3c/div>\x3cdiv class=\"page\">\x3ch1 style=\"font-size:24px;margin:8px 0;text-align:center\">Kirkcudbright Art Trail\x3c/h1>\x3cdiv style=\"background:lightblue;padding:2px 4px\">\x3cp style=\"margin:6px 0\">Pick up a trail map at the harbour.\x3c/p>\x3c/div>\x3cdiv>\x3ch2 style=\"font-size:19px;margin:8px 0;color:purple\">Stop 1: The Harbour Studio\x3c/h2>\x3cp style=\"margin:6px 0\">Paintings of the boats and the river.\x3c/p>\x3ch2 style=\"font-size:19px;margin:8px 0;color:purple\">Stop 2: High Street Pottery\x3c/h2>\x3cp style=\"margin:6px 0\">Watch the potters at work.\x3c/p>\x3c/div>\x3c/div>\x3c/div>"},"givenLabel":"HTML code","given":"\x3cbody>\n  \x3ch1>Kirkcudbright Art Trail\x3c/h1>\n  \x3cdiv id=\"map\">\n    \x3cp>Pick up a trail map at the harbour.\x3c/p>\n  \x3c/div>\n  \x3cdiv>\n    \x3ch2 class=\"stop\">Stop 1: The Harbour Studio\x3c/h2>\n    \x3cp>Paintings of the boats and the river.\x3c/p>\n    \x3ch2 class=\"stop\">Stop 2: High Street Pottery\x3c/h2>\n    \x3cp>Watch the potters at work.\x3c/p>\n  \x3c/div>\n\x3c/body>","command":"Write the CSS rules so that the page is displayed as shown. The rules can be written in any order.","bullets":["the main heading is centred","only the trail map section has a light blue background","only the two stop headings are purple"],"lines":[["h1 {text-align:center;}",1],["#map {background-color:lightblue;}",1],[".stop {color:purple;}",1]],"distractors":[["div {background-color:lightblue;}","This rule would colour both divs. Only the trail map section is light blue."],["p {color:purple;}","This rule would make the paragraphs purple. Only the stop headings are purple."],["#stop {color:purple;}","stop is a class, so it is selected with a full stop, not #."]]},{"group":"JavaScript (stretch)","kind":"Stretch: beyond N5 requirements","marks":2,"title":"Rollover Image","context":"Dornoch Llama Treks shows a photograph of a llama on its home page. When the cursor moves over the photograph, it should change to llamaSmile.jpg. When the cursor moves away, llama.jpg should be shown again.","vis":{"cap":"Intended effect","note":"","html":"\x3csvg class=\"wf\" viewBox=\"0 0 520 190\" role=\"img\" aria-label=\"Llama photograph before and after the cursor moves over it\">\x3cdefs>\x3cmarker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\">\x3cpath class=\"ahead\" d=\"M0,0 L10,5 L0,10 Z\"/>\x3c/marker>\x3c/defs>\x3crect class=\"box\" x=\"30\" y=\"16\" width=\"190\" height=\"130\"/>\x3cline class=\"cross\" x1=\"30\" y1=\"16\" x2=\"220\" y2=\"146\"/>\x3cline class=\"cross\" x1=\"220\" y1=\"16\" x2=\"30\" y2=\"146\"/>\x3ctext class=\"lbl\" x=\"36\" y=\"32\">llama.jpg\x3c/text>\x3crect class=\"box\" x=\"300\" y=\"16\" width=\"190\" height=\"130\"/>\x3cline class=\"cross\" x1=\"300\" y1=\"16\" x2=\"490\" y2=\"146\"/>\x3cline class=\"cross\" x1=\"490\" y1=\"16\" x2=\"300\" y2=\"146\"/>\x3ctext class=\"lbl\" x=\"306\" y=\"32\">llamaSmile.jpg\x3c/text>\x3cpath transform=\"translate(400,80)\" d=\"M0,0 L0,17 L4.5,13 L7.5,20 L10,19 L7,12 L13,12 Z\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/>\x3cline class=\"nline\" x1=\"232\" y1=\"81\" x2=\"288\" y2=\"81\" marker-end=\"url(#ah)\"/>\x3ctext class=\"txt\" x=\"125\" y=\"174\" text-anchor=\"middle\">Cursor away: llama.jpg\x3c/text>\x3ctext class=\"txt\" x=\"395\" y=\"174\" text-anchor=\"middle\">Cursor over: llamaSmile.jpg\x3c/text>\x3c/svg>"},"command":"Write the HTML code for the image, using the onmouseover and onmouseout events. Arrange the parts to build the tag. The two events can go in either order.","lines":[["\x3cimg src=\"llama.jpg\" alt=\"Llama on the beach\"",1],["  onmouseover=\"this.src='llamaSmile.jpg'\"",2],["  onmouseout=\"this.src='llama.jpg'\"",2],[">",3]],"distractors":[["  onclick=\"this.src='llamaSmile.jpg'\"","onclick runs when the image is clicked, not when the cursor moves over it."],["  onmouseout=\"this.src='llamaSmile.jpg'\"","When the cursor moves away, the first photograph, llama.jpg, must be shown again."],["  onmouseover=\"llama.src='llamaSmile.jpg'\"","this means the image the cursor is over. llama is not a name the browser knows."]]}];
+
+/* ---------- App ---------- */
+const KEY = "smhs-n5-web-parsons-";
+const STORE_KEY = KEY + "scores-v1";
+const STATS_KEY = KEY + "stats-v1";
+const HINTS_KEY = KEY + "hints-v1";
+let scores = {};   /* best score for each problem, by index */
+try { scores = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; } catch (e) { scores = {}; }
+function saveScores() { try { localStorage.setItem(STORE_KEY, JSON.stringify(scores)); } catch (e) {} }
+let stats = {};   /* for each problem: checks made, hints taken, distractor lines placed in an answer */
+try { stats = JSON.parse(localStorage.getItem(STATS_KEY) || "{}") || {}; } catch (e) { stats = {}; }
+function stat(i) { if (!stats[i]) stats[i] = { checks: 0, hints: 0, mistakes: [] }; return stats[i]; }
+function saveStats() { try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) {} }
+/* hints used on each problem; kept on this device, so neither Start again nor reloading the page gives them back */
+let hintsUsed = {};
+try { hintsUsed = JSON.parse(localStorage.getItem(HINTS_KEY) || "{}") || {}; } catch (e) { hintsUsed = {}; }
+function saveHints() { try { localStorage.setItem(HINTS_KEY, JSON.stringify(hintsUsed)); } catch (e) {} }
+let solvedNow = false;
+
+const $ = id => document.getElementById(id);
+const pool = $("pool"), answer = $("answer"), feedback = $("feedback");
+let current = 0, items = {}, checks = 0, justDragged = false;
+
+function isStretch(p) { return p.kind.indexOf("Stretch") === 0; }
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function buildNav() {
+  const nav = $("problemNav");
+  nav.innerHTML = "";
+  const ul = document.createElement("ul");
+  ul.className = "plist";
+  let lastGroup = null;
+  PROBLEMS.forEach((p, i) => {
+    if (p.group !== lastGroup) {
+      const g = document.createElement("li");
+      g.className = "group-label";
+      g.textContent = p.group;
+      ul.appendChild(g);
+      lastGroup = p.group;
+    }
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("aria-current", i === current ? "true" : "false");
+    b.innerHTML = '\x3cspan class="num">\x3c/span>\x3cspan class="t">\x3c/span>' + (scores[i] !== undefined ? '\x3cspan class="tick" aria-label="scored ' + scores[i] + ' out of ' + p.marks + '">' + scores[i] + '/' + p.marks + '\x3c/span>' : "");
+    b.querySelector(".num").textContent = String(i + 1).padStart(2, "0");
+    b.querySelector(".t").textContent = p.title;
+    b.addEventListener("click", () => load(i));
+    li.appendChild(b);
+    ul.appendChild(li);
+  });
+  const rb = document.createElement("button");
+  rb.type = "button";
+  rb.className = "btn nav-results";
+  rb.textContent = "Results";
+  rb.addEventListener("click", showResults);
+  nav.append(rb, ul);
+  const done = Object.keys(scores).length;
+  const got = Object.values(scores).reduce((a, b) => a + b, 0);
+  const total = PROBLEMS.reduce((a, q) => a + q.marks, 0);
+  $("progress").textContent = "Score " + got + " / " + total + " · " + done + " of " + PROBLEMS.length + " complete";
+}
+
+function makeBlock(item) {
+  const li = document.createElement("li");
+  li.className = "block";
+  li.tabIndex = 0;
+  li.dataset.id = item.id;
+  const mark = document.createElement("span");
+  mark.className = "mark";
+  mark.setAttribute("aria-hidden", "true");
+  const code = document.createElement("code");
+  code.textContent = item.t;
+  li.append(mark, code);
+  li.addEventListener("click", () => { if (!justDragged) moveAcross(li); });
+  li.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); moveAcross(li); }
+    else if (e.altKey && e.key === "ArrowUp" && li.previousElementSibling) { e.preventDefault(); li.parentNode.insertBefore(li, li.previousElementSibling); li.focus(); changed(); }
+    else if (e.altKey && e.key === "ArrowDown" && li.nextElementSibling) { e.preventDefault(); li.parentNode.insertBefore(li.nextElementSibling, li); li.focus(); changed(); }
+  });
+  return li;
+}
+
+function moveAcross(li) {
+  (li.parentNode === pool ? answer : pool).appendChild(li);
+  li.focus();
+  changed();
+}
+
+function changed() {
+  document.querySelectorAll(".block").forEach(b => { b.classList.remove("right", "wrong", "hinted"); b.querySelector(".mark").textContent = ""; });
+  feedback.hidden = true;
+  counts();
+}
+
+function counts() {
+  $("poolCount").textContent = pool.children.length + " lines";
+  $("ansCount").textContent = answer.children.length + " lines";
+}
+
+function load(i) {
+  $("resultsView").hidden = true;
+  $("workView").hidden = false;
+  current = i; checks = 0; items = {};
+  const p = PROBLEMS[i];
+  $("pKind").textContent = p.kind;
+  $("pKind").classList.toggle("stretch", isStretch(p));
+  $("pMarks").textContent = p.marks + (p.marks === 1 ? " mark" : " marks");
+  $("pTitle").textContent = p.title;
+  $("pContext").textContent = p.context;
+  const v = p.vis;
+  $("pVisual").innerHTML = '\x3cfigcaption>' + v.cap + (v.note ? ' \x3cspan>· ' + v.note + '\x3c/span>' : '') + '\x3c/figcaption>' + v.html;
+
+  $("pGiven").hidden = !p.given;
+  $("pGivenLabel").textContent = p.givenLabel || "Code";
+  const pre = $("pGivenCode");
+  pre.textContent = "";
+  if (p.given) {
+    /* text outside &lt;mark>…&lt;/mark> is plain text; the marked part shows where the answer goes */
+    p.given.split(/(\x3cmark>.*?\x3c\/mark>)/).forEach(part => {
+      const m = part.match(/^\x3cmark>(.*)\x3c\/mark>$/);
+      if (m) { const el = document.createElement("mark"); el.textContent = m[1]; pre.appendChild(el); }
+      else pre.appendChild(document.createTextNode(part));
+    });
+  }
+
+  $("pCommand").textContent = p.command;
+  const ul = $("pBullets");
+  ul.innerHTML = "";
+  (p.bullets || []).forEach(b => { const li = document.createElement("li"); li.textContent = b; ul.appendChild(li); });
+  ul.hidden = !p.bullets;
+  $("pAfter").textContent = p.after || "";
+  $("pAfter").hidden = !p.after;
+
+  const all = [];
+  p.lines.forEach((l, n) => all.push({ id: "l" + n, t: l[0], k: l[1] }));
+  p.distractors.forEach((d, n) => all.push({ id: "d" + n, t: d[0], why: d[1], distractor: true }));
+  all.forEach(it => items[it.id] = it);
+  pool.innerHTML = ""; answer.innerHTML = "";
+  shuffle(all).forEach(it => pool.appendChild(makeBlock(it)));
+  solvedNow = false;
+  if (hintsUsed[i] === undefined) hintsUsed[i] = 0;
+  showHints();
+  $("nextBtn").hidden = i === PROBLEMS.length - 1;
+  feedback.hidden = true;
+  counts();
+  buildNav();
+}
+
+function solutionLines() {
+  return Object.values(items).filter(it => !it.distractor).sort((a, b) => a.k - b.k);
+}
+
+function reasonList(list) {
+  const ul = document.createElement("ul");
+  list.forEach(it => {
+    const li = document.createElement("li");
+    const c = document.createElement("code");
+    c.textContent = it.t.trim();
+    li.append(c, document.createTextNode(" " + it.why));
+    ul.appendChild(li);
+  });
+  return ul;
+}
+
+function check() {
+  checks++;
+  const st = stat(current);
+  st.checks++;
+  const sol = solutionLines();
+  const placed = [...answer.children].map(li => ({ li, it: items[li.dataset.id] }));
+  let rightCount = 0;
+  const wrongDistractors = [];
+  placed.forEach(({ li, it }, pos) => {
+    let ok = false;
+    if (it.distractor) {
+      wrongDistractors.push(it);
+      if (!st.mistakes.includes(it.id)) st.mistakes.push(it.id);
+    } else if (pos < sol.length) {
+      const expectedKey = sol[pos].k;
+      /* lines that share a key, or have identical text, are interchangeable */
+      ok = sol.some(s => s.k === expectedKey && s.t === it.t) || sol[pos].t === it.t;
+    }
+    li.classList.toggle("right", ok);
+    li.classList.toggle("wrong", !ok);
+    li.querySelector(".mark").textContent = ok ? "✓" : "✗";
+    if (ok) rightCount++;
+  });
+
+  const missing = sol.length - placed.filter(p => !p.it.distractor).length;
+  const allRight = rightCount === sol.length && placed.length === sol.length;
+
+  feedback.innerHTML = "";
+  feedback.className = "feedback " + (allRight ? "ok" : "no");
+  const head = document.createElement("p");
+  if (allRight) {
+    const p = PROBLEMS[current];
+    const score = Math.max(0, p.marks - hintsUsed[current]);
+    head.innerHTML = "\x3cstrong>Correct.\x3c/strong> You scored " + score + " out of " + p.marks +
+      (hintsUsed[current] ? " (" + hintsUsed[current] + (hintsUsed[current] === 1 ? " hint" : " hints") + " used)." : ".");
+    solvedNow = true;
+    if (scores[current] === undefined || score > scores[current]) { scores[current] = score; saveScores(); }
+    buildNav();
+    if (Object.keys(scores).length === PROBLEMS.length || current === PROBLEMS.length - 1) {
+      const rb = document.createElement("button");
+      rb.type = "button"; rb.className = "btn primary"; rb.textContent = "See your results";
+      rb.style.marginTop = "10px";
+      rb.addEventListener("click", showResults);
+      setTimeout(() => feedback.appendChild(rb), 0);
+    }
+  } else {
+    head.innerHTML = "\x3cstrong>Not yet.\x3c/strong> " + rightCount + " of " + sol.length + " needed lines are in the right place.";
+  }
+  feedback.appendChild(head);
+  if (!allRight && missing > 0) {
+    const m = document.createElement("p");
+    m.textContent = missing === 1 ? "One needed line is still in Code lines." : missing + " needed lines are still in Code lines.";
+    feedback.appendChild(m);
+  }
+  if (wrongDistractors.length) {
+    const t = document.createElement("p");
+    t.textContent = wrongDistractors.length === 1 ? "This line is not needed:" : "These lines are not needed:";
+    feedback.append(t, reasonList(wrongDistractors));
+  }
+  if (allRight) {
+    const t = document.createElement("p");
+    t.textContent = "Why the other lines were wrong:";
+    feedback.append(t, reasonList(Object.values(items).filter(it => it.distractor)));
+  }
+  feedback.hidden = false;
+  saveStats();
+}
+
+function showHints() {
+  const n = hintsUsed[current] || 0;
+  const left = Math.max(0, PROBLEMS[current].marks - n);
+  $("pHints").textContent = n ? n + (n === 1 ? " hint used" : " hints used") + " · worth " + left + " now" : "";
+}
+
+/* A hint fixes the first mistake in the answer: it removes an unneeded line,
+   or puts the correct line into the first wrong or empty position. Each hint costs 1 mark. */
+function hint() {
+  if (solvedNow) return;
+  const sol = solutionLines();
+  const ans = [...answer.children];
+  const fits = (it, pos) => !it.distractor && pos < sol.length && (sol.some(s => s.k === sol[pos].k && s.t === it.t) || sol[pos].t === it.t);
+  let i = 0;
+  while (i < ans.length && fits(items[ans[i].dataset.id], i)) i++;
+
+  changed();
+  feedback.innerHTML = "";
+  feedback.className = "feedback no";
+  const msg = document.createElement("p");
+
+  if (i === ans.length && ans.length === sol.length) {
+    msg.innerHTML = "\x3cstrong>No hint needed.\x3c/strong> Your answer looks complete. Press Check answer.";
+    feedback.append(msg); feedback.hidden = false;
+    return;
+  }
+
+  if (i < ans.length && (items[ans[i].dataset.id].distractor || i >= sol.length)) {
+    const li = ans[i], it = items[li.dataset.id];
+    pool.prepend(li);
+    li.classList.add("hinted"); li.querySelector(".mark").textContent = "!";
+    if (it.distractor) {
+      msg.innerHTML = "\x3cstrong>Hint.\x3c/strong> This line has been moved out of your answer because it is not needed:";
+      feedback.append(msg, reasonList([it]));
+    } else {
+      msg.innerHTML = "\x3cstrong>Hint.\x3c/strong> A line has been moved out of your answer because it was in the wrong place.";
+      feedback.append(msg);
+    }
+  } else {
+    const wantKey = sol[i].k;
+    const wantTexts = sol.filter(s => s.k === wantKey).map(s => s.t).concat([sol[i].t]);
+    /* any unused needed line whose text belongs at this position (identical lines such as &lt;/div> are interchangeable) */
+    const choice = [...pool.children, ...ans.slice(i)].find(li => {
+      const it = items[li.dataset.id];
+      return !it.distractor && wantTexts.includes(it.t);
+    });
+    if (!choice) return;
+    answer.insertBefore(choice, answer.children[i] || null);
+    choice.classList.add("hinted"); choice.querySelector(".mark").textContent = "!";
+    msg.innerHTML = "\x3cstrong>Hint.\x3c/strong> Line " + (i + 1) + " of your answer has been put in place for you. The lines above it were already right.";
+    feedback.append(msg);
+  }
+
+  hintsUsed[current] = (hintsUsed[current] || 0) + 1;
+  saveHints();
+  stat(current).hints++; saveStats();
+  showHints();
+  const cost = document.createElement("p");
+  cost.textContent = "This question is now worth " + Math.max(0, PROBLEMS[current].marks - hintsUsed[current]) + " out of " + PROBLEMS[current].marks + ".";
+  feedback.append(cost);
+  feedback.hidden = false;
+  counts();
+}
+
+/* ---------- Results ---------- */
+function esc(s) { return String(s).replace(/[&\x3c>\x22]/g, c => ({ "&": "&amp;", "\x3c": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function statusOf(i) {
+  const p = PROBLEMS[i];
+  if (scores[i] === undefined) return (stats[i] && stats[i].checks) ? ["In progress", "todo"] : ["Not attempted", "todo"];
+  if (scores[i] === p.marks) return ["Full marks", "full"];
+  if (scores[i] === 0) return ["No marks", "none"];
+  return ["Part marks", "part"];
+}
+function styleName(p) { return isStretch(p) ? "Stretch" : p.kind.replace(" style", ""); }
+let resetArmed = false;
+
+function showResults() {
+  $("workView").hidden = true;
+  const v = $("resultsView");
+  v.hidden = false;
+  resetArmed = false;
+  window.scrollTo({ top: 0 });
+
+  const total = PROBLEMS.reduce((a, q) => a + q.marks, 0);
+  const got = Object.values(scores).reduce((a, b) => a + b, 0);
+  const done = Object.keys(scores).length;
+  const pct = total ? Math.round(100 * got / total) : 0;
+  const hintsAll = Object.values(stats).reduce((a, s) => a + (s.hints || 0), 0);
+
+  const groups = [];
+  PROBLEMS.forEach((p, i) => {
+    let g = groups.find(x => x.name === p.group);
+    if (!g) { g = { name: p.group, got: 0, total: 0 }; groups.push(g); }
+    g.total += p.marks;
+    g.got += scores[i] || 0;
+  });
+
+  let html = '\x3cp class="eyebrow">\x3cspan class="kind">Your results\x3c/span>\x3c/p>' +
+    '\x3ch2>Performance breakdown\x3c/h2>' +
+    '\x3cp class="lead">Scores are your best score on each problem, after any hints. Problems you have not finished count as 0.\x3c/p>' +
+    '\x3cdiv class="totals">' +
+      '\x3cdiv class="total-card">\x3cb>' + got + ' / ' + total + '\x3c/b>\x3cspan>marks (' + pct + '%)\x3c/span>\x3c/div>' +
+      '\x3cdiv class="total-card">\x3cb>' + done + ' / ' + PROBLEMS.length + '\x3c/b>\x3cspan>problems complete\x3c/span>\x3c/div>' +
+      '\x3cdiv class="total-card">\x3cb>' + hintsAll + '\x3c/b>\x3cspan>hints used\x3c/span>\x3c/div>' +
+    '\x3c/div>';
+
+  html += '\x3ch3>By topic\x3c/h3>\x3cdiv class="topic-rows">';
+  groups.forEach(g => {
+    const gp = g.total ? Math.round(100 * g.got / g.total) : 0;
+    html += '\x3cdiv class="topic-row">\x3cspan>' + esc(g.name) + '\x3c/span>\x3cdiv class="track">\x3cdiv class="fill" style="width:' + gp + '%">\x3c/div>\x3c/div>\x3cspan class="num">' + g.got + ' / ' + g.total + '\x3c/span>\x3c/div>';
+  });
+  html += '\x3c/div>';
+
+  html += '\x3ch3>By problem\x3c/h3>\x3cdiv class="table-wrap">\x3ctable>\x3cthead>\x3ctr>\x3cth>#\x3c/th>\x3cth>Problem\x3c/th>\x3cth>Style\x3c/th>\x3cth class="n">Score\x3c/th>\x3cth class="n">Hints\x3c/th>\x3cth class="n">Checks\x3c/th>\x3cth>Status\x3c/th>\x3c/tr>\x3c/thead>\x3ctbody>';
+  PROBLEMS.forEach((p, i) => {
+    const s = stats[i] || { checks: 0, hints: 0 };
+    const st = statusOf(i);
+    html += '\x3ctr>\x3ctd class="n">' + (i + 1) + '\x3c/td>\x3ctd class="wrap">' + esc(p.title) + '\x3c/td>\x3ctd>' + esc(styleName(p)) + '\x3c/td>' +
+      '\x3ctd class="n">' + (scores[i] === undefined ? '–' : scores[i]) + ' / ' + p.marks + '\x3c/td>\x3ctd class="n">' + (s.hints || 0) + '\x3c/td>\x3ctd class="n">' + (s.checks || 0) + '\x3c/td>' +
+      '\x3ctd>\x3cspan class="pill ' + st[1] + '">' + st[0] + '\x3c/span>\x3c/td>\x3c/tr>';
+  });
+  html += '\x3c/tbody>\x3c/table>\x3c/div>';
+
+  const withMistakes = PROBLEMS.map((p, i) => ({ p, i, ids: (stats[i] && stats[i].mistakes) || [] })).filter(x => x.ids.length);
+  html += '\x3ch3>Mistakes to review\x3c/h3>';
+  if (!withMistakes.length) {
+    html += '\x3cp>You have not put any of the wrong lines into an answer yet.\x3c/p>';
+  } else {
+    html += '\x3cp class="lead">These are the wrong lines you put into an answer, and why each one is wrong.\x3c/p>\x3cdiv class="mistakes">';
+    withMistakes.forEach(x => {
+      html += '\x3cdiv class="m">\x3cp class="t">' + (x.i + 1) + '. ' + esc(x.p.title) + '\x3c/p>\x3cul>';
+      x.ids.forEach(id => {
+        const d = x.p.distractors[parseInt(id.slice(1), 10)];
+        if (d) html += '\x3cli>\x3ccode>' + esc(d[0].trim()) + '\x3c/code> ' + esc(d[1]) + '\x3c/li>';
+      });
+      html += '\x3c/ul>\x3c/div>';
+    });
+    html += '\x3c/div>';
+  }
+
+  html += '\x3ch3>Send your results to your teacher\x3c/h3>\x3cdiv class="send">' +
+    '\x3cp>Type your name and class, then make your results code. Copy the code and paste it into your Teams assignment.\x3c/p>' +
+    '\x3cdiv class="fields">\x3clabel for="pupilName">Name\x3cinput id="pupilName" type="text" maxlength="40" autocomplete="name">\x3c/label>' +
+    '\x3clabel for="pupilClass">Class\x3cinput id="pupilClass" type="text" maxlength="12" size="8">\x3c/label>' +
+    '\x3cbutton class="btn primary" type="button" id="makeCodeBtn">Make my results code\x3c/button>\x3c/div>' +
+    '\x3cdiv id="codeArea" hidden>\x3ctextarea id="codeBox" readonly aria-label="Your results code">\x3c/textarea>' +
+    '\x3cdiv class="fields" style="margin-top:8px">\x3cbutton class="btn" type="button" id="copyCodeBtn">Copy code\x3c/button>\x3cspan id="codeMsg">\x3c/span>\x3c/div>\x3c/div>' +
+    '\x3c/div>';
+
+  const revise = PROBLEMS.map((p, i) => i).filter(i => scores[i] === undefined || scores[i] < PROBLEMS[i].marks);
+  html += '\x3ch3>Revise next\x3c/h3>';
+  if (!revise.length) html += '\x3cp>Full marks on every problem.\x3c/p>';
+  else {
+    html += '\x3col class="revise">';
+    revise.forEach(i => { html += '\x3cli>\x3cbutton type="button" data-go="' + i + '">' + esc(PROBLEMS[i].title) + '\x3c/button> · ' + esc(statusOf(i)[0].toLowerCase()) + '\x3c/li>'; });
+    html += '\x3c/ol>';
+  }
+
+  html += '\x3cdiv class="actions">\x3cbutton class="btn primary" type="button" id="backBtn">Back to the problems\x3c/button>' +
+    '\x3cbutton class="btn" type="button" id="copyBtn">Copy summary\x3c/button>' +
+    '\x3cbutton class="btn" type="button" id="resetAllBtn">Reset all results\x3c/button>\x3c/div>' +
+    '\x3cp class="lead" id="resultsMsg" style="margin-top:10px">\x3c/p>';
+
+  v.innerHTML = html;
+  try { $("pupilName").value = localStorage.getItem(KEY + "name") || ""; $("pupilClass").value = localStorage.getItem(KEY + "class") || ""; } catch (e) {}
+  $("makeCodeBtn").addEventListener("click", () => {
+    const name = $("pupilName").value.trim(), cls = $("pupilClass").value.trim();
+    if (!name) { $("codeArea").hidden = false; $("codeBox").value = ""; $("codeMsg").textContent = "Type your name first."; $("pupilName").focus(); return; }
+    try { localStorage.setItem(KEY + "name", name); localStorage.setItem(KEY + "class", cls); } catch (e) {}
+    $("codeBox").value = makeResultsCode(name, cls);
+    $("codeArea").hidden = false;
+    $("codeMsg").textContent = "Copy this code into your Teams assignment.";
+  });
+  $("copyCodeBtn").addEventListener("click", () => {
+    const box = $("codeBox");
+    const done = () => { $("codeMsg").textContent = "Code copied. Paste it into your Teams assignment."; };
+    const fallback = () => { box.focus(); box.select(); $("codeMsg").textContent = "Press Ctrl + C to copy the selected code."; };
+    try { navigator.clipboard.writeText(box.value).then(done, fallback); } catch (e) { fallback(); }
+  });
+  v.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { load(parseInt(b.dataset.go, 10)); window.scrollTo({ top: 0 }); }));
+  $("backBtn").addEventListener("click", () => load(current));
+  $("copyBtn").addEventListener("click", () => {
+    const text = summaryText(got, total, pct, done, groups);
+    const msg = $("resultsMsg");
+    const ok = () => { msg.textContent = "Summary copied. Paste it wherever your teacher asks."; };
+    const fallback = () => {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.rows = 10; ta.style.width = "100%"; ta.readOnly = true;
+      msg.textContent = "Select this text and copy it:";
+      msg.after(ta); ta.focus(); ta.select();
+    };
+    try { navigator.clipboard.writeText(text).then(ok, fallback); } catch (e) { fallback(); }
+  });
+  $("resetAllBtn").addEventListener("click", e => {
+    if (!resetArmed) {
+      resetArmed = true;
+      e.target.textContent = "Press again to delete all scores";
+      $("resultsMsg").textContent = "This clears every score, hint count and mistake on this device.";
+      return;
+    }
+    scores = {}; stats = {}; hintsUsed = {};
+    saveScores(); saveStats(); saveHints(); buildNav(); showResults();
+    $("resultsMsg").textContent = "All results cleared.";
+  });
+  buildNav();
+}
+
+/* Results code: N5W1.&lt;base64url of [1, name, class, minutes since 1970, rows, content version]>.&lt;4-character check>
+   Each row is [best score or -1, hints, checks, bit mask of the distractor lines placed].
+   Same structure as the Higher HWP1 code, plus the content version at the end. */
+function checkSum(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return (h % 1679616).toString(36).padStart(4, "0");
+}
+function makeResultsCode(name, cls) {
+  const rows = PROBLEMS.map((p, i) => {
+    const s = stats[i] || {};
+    let bits = 0;
+    (s.mistakes || []).forEach(id => { bits |= 1 << parseInt(id.slice(1), 10); });
+    return [scores[i] === undefined ? -1 : scores[i], s.hints || 0, s.checks || 0, bits];
+  });
+  const json = JSON.stringify([1, name, cls, Math.floor(Date.now() / 60000), rows, CONTENT_VERSION]);
+  const b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return "N5W1." + b64 + "." + checkSum(b64);
+}
+
+function summaryText(got, total, pct, done, groups) {
+  const lines = ["N5 Web Parsons Problems: results", "Total: " + got + " / " + total + " (" + pct + "%), " + done + " of " + PROBLEMS.length + " problems complete", ""];
+  groups.forEach(g => lines.push(g.name + ": " + g.got + " / " + g.total));
+  lines.push("");
+  PROBLEMS.forEach((p, i) => {
+    const s = stats[i] || { hints: 0 };
+    lines.push((i + 1) + ". " + p.title + ": " + (scores[i] === undefined ? "not complete" : scores[i] + " / " + p.marks) + (s.hints ? " (" + s.hints + " hints)" : ""));
+  });
+  return lines.join("\n");
+}
+
+$("checkBtn").addEventListener("click", check);
+$("resetBtn").addEventListener("click", () => load(current));
+$("hintBtn").addEventListener("click", hint);
+$("nextBtn").addEventListener("click", () => { if (current < PROBLEMS.length - 1) { load(current + 1); window.scrollTo({ top: 0 }); } });
+
+if (window.Sortable) {
+  const opts = {
+    group: "parsons", animation: 150, ghostClass: "sortable-ghost", chosenClass: "sortable-chosen",
+    onStart: () => { justDragged = true; },
+    onEnd: () => { setTimeout(() => { justDragged = false; }, 50); changed(); }
+  };
+  Sortable.create(pool, opts);
+  Sortable.create(answer, opts);
+}
+
+load(0);
+</script>
